@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SSP-Note-Float</string>
+    <string name="app_name">SSP SMART Payout</string>
     <string name="action_settings">Settings</string>
     <string name="action_bill_view">View Stored Bill order</string>
     <string name="enable_start">Click Run to start...</string>

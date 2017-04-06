@@ -81,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
     static TextView txtPayoutStatus;
     static TextView txtConnect;
     static ProgressBar prgConnect;
+    static Button bttnFloat;
 
     static ArrayList<HashMap<String, String>> list;
     static String[] pickerValues;
@@ -95,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
     private SSPUpdate sspUpdate = null;
     private static MainActivity instance = null;
     private static String m_DeviceCountry = null;
+    private static int m_FloatValue = 0;
 
 
     @Override
@@ -107,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        bvDisplay = (LinearLayout) findViewById(R.id.content_note_float);
+        bvDisplay = (LinearLayout) findViewById(R.id.content_smart_payout);
         bvDisplay.setVisibility(View.INVISIBLE);
         mainActivity = this;
         this.instance = this;
@@ -124,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
         progress = new ProgressDialog(MainActivity.this);
 
 
-        setTitle("Note Float");
+        setTitle("SMART payout");
 
         listEvents = (ListView) findViewById(R.id.listEvents);
         listChannels = (ListView) findViewById(R.id.listChannels);
@@ -283,6 +285,78 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+        bttnFloat = (Button)findViewById(R.id.bttnFloat);
+        bttnFloat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getInstance());
+                builder.setTitle("Enter float amount " + m_DeviceCountry);
+
+                final NumberPicker input = new NumberPicker(getInstance());
+                input.setDisplayedValues(null);
+                input.setMinValue(1);
+                input.setMaxValue(pickerValues.length);
+                input.setDisplayedValues(pickerValues);
+                builder.setView(input);
+
+
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // save int value selected
+                        m_FloatValue = Integer.valueOf(pickerValues[input.getValue() - 1]) * 100;
+
+                        // show next diag for min amount
+                        AlertDialog.Builder builderMin = new AlertDialog.Builder(getInstance());
+                        builderMin.setTitle("Enter minimum amount " + m_DeviceCountry);
+                        final NumberPicker inputMin = new NumberPicker(getInstance());
+                        inputMin.setDisplayedValues(null);
+                        inputMin.setMinValue(1);
+                        inputMin.setMaxValue(pickerValues.length);
+                        inputMin.setDisplayedValues(pickerValues);
+                        builderMin.setView(inputMin);
+
+                        builderMin.setPositiveButton("OK", new DialogInterface.OnClickListener(){
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                ItlCurrency curpay = new ItlCurrency();
+                                ItlCurrency curpayMin = new ItlCurrency();
+                                curpay.country = m_DeviceCountry;
+                                curpayMin.country = m_DeviceCountry;
+                                curpay.value = m_FloatValue;
+                                curpayMin.value = Integer.valueOf(pickerValues[inputMin.getValue() - 1]) * 100;
+                                Toast.makeText(getInstance(), "Float " + m_DeviceCountry + " " + String.valueOf(pickerValues[input.getValue() - 1]), Toast.LENGTH_SHORT).show();
+                                deviceCom.FloatAmount(curpay,curpayMin);
+                            }
+                        });
+                        builderMin.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        });
+                        builderMin.show();
+
+
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                builder.show();
+
+            }
+        });
+
+
+
         bttnEmpty = (Button) findViewById(R.id.bttnEmpty);
         bttnEmpty.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -331,15 +405,15 @@ public class MainActivity extends AppCompatActivity {
         bvDisplay.setVisibility(View.VISIBLE);
 
         // check for type comparable
-        if (dev.type != SSPDeviceType.NoteFloat) {
+        if (dev.type != SSPDeviceType.SmartPayout) {
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.getInstance());
             // 2. Chain together various setter methods to set the dialog characteristics
-            builder.setMessage("Connected device is not Note Float (" + dev.type.toString() + ")")
-                    .setTitle("BNV");
+            builder.setMessage("Connected device is not SMART Payout (" + dev.type.toString() + ")")
+                    .setTitle("SSP");
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-
+                    getInstance().finish();
                 }
             });
 
@@ -420,9 +494,11 @@ public class MainActivity extends AppCompatActivity {
         if(sspDevice.storedPayoutValue > 0){
             bttnPay.setEnabled(true);
             bttnEmpty.setEnabled(true);
+            bttnFloat.setEnabled(true);
         }else{
             bttnEmpty.setEnabled(false);
             bttnPay.setEnabled(false);
+            bttnFloat.setEnabled(false);
         }
 
 

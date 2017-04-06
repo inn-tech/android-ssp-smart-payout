@@ -2,11 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/content_note_float"
+    android:id="@+id/content_smart_payout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.system.itl.ssp_bnv.MainActivity"
+    tools:context=".MainActivity"
     tools:showIn="@layout/activity_main"
     android:orientation="vertical">
 
@@ -150,28 +150,39 @@
             android:id="@+id/txtPayoutProgress"
             android:textSize="14sp" />
 
+
+
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:weightSum="3"
             android:id="@+id/layPayoutControl">
 
-            <Button
-                android:text="Empty"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/bttnEmpty"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1" />
 
             <Button
                 android:text="Pay"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:id="@+id/bttnPay"
                 android:layout_weight="1" />
 
+            <Button
+                android:id="@+id/bttnFloat"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_gravity="center_vertical"
+                android:layout_height="wrap_content"
+                android:text="Float" />
+
+            <Button
+                android:text="Empty"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/bttnEmpty"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1" />
 
         </LinearLayout>
     </LinearLayout>

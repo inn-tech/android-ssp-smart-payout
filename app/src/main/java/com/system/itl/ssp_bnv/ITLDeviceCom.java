@@ -260,6 +260,14 @@ public class ITLDeviceCom extends Thread implements DeviceSetupListener, DeviceE
         }
     }
 
+    void FloatAmount(ItlCurrency amt, ItlCurrency min)
+    {
+        if(ssp != null){
+            ssp.FloatAmount(amt,min);
+        }
+    }
+
+
     void EmptyPayout()
     {
         if(ssp != null){
