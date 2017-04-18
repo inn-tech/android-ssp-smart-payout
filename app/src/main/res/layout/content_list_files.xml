@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:padding="10dp"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.system.itl.ssp_bnv.ListFiles"
+    tools:context="com.system.itl.ssp_spo.ListFiles"
     tools:showIn="@layout/activity_list_files">
 
     <TextView

@@ -1,4 +1,4 @@
-package com.system.itl.ssp_bnv;
+package com.system.itl.ssp_spo;
 
 public class Constants {
 

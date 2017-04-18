@@ -1,16 +1,20 @@
-package com.system.itl.ssp_bnv;
+package com.system.itl.ssp_spo;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -34,8 +38,6 @@ import android.widget.Toast;
 import com.ftdi.j2xx.D2xxManager;
 import com.ftdi.j2xx.FT_Device;
 
-
-import org.w3c.dom.Text;
 
 import java.io.DataInputStream;
 import java.io.File;
@@ -90,13 +92,16 @@ public class MainActivity extends AppCompatActivity {
     static String[] eventValues;
     static ArrayAdapter<String> adapterChannels;
     static ArrayAdapter<String> adapterEvents;
-    //static NumberPicker numPayAmount;
+
 
     private static SSPDevice sspDevice = null;
     private SSPUpdate sspUpdate = null;
     private static MainActivity instance = null;
     private static String m_DeviceCountry = null;
     private static int m_FloatValue = 0;
+    private static final int MY_PERMISSIONS_REQUEST_READ_STORAGE = 0;
+
+    private static MenuItem downloadSelect = null;
 
 
     @Override
@@ -124,6 +129,31 @@ public class MainActivity extends AppCompatActivity {
 
 
         progress = new ProgressDialog(MainActivity.this);
+
+
+        /* ask for permission to storeage read  */
+        int permissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE);
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
+
+                txtConnect.setText("This app requires access to the downloads directory in order to load download files.");
+                txtConnect.setVisibility(View.VISIBLE);
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        MY_PERMISSIONS_REQUEST_READ_STORAGE);
+
+
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        MY_PERMISSIONS_REQUEST_READ_STORAGE);
+            }
+        }
+
 
 
         setTitle("SMART payout");
@@ -389,6 +419,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    protected void onDestroy() {
+        this.unregisterReceiver(mUsbReceiver);
+        super.onDestroy();
+    }
+
+
+
     public static MainActivity getInstance() {
 
         return instance;
@@ -481,14 +519,28 @@ public class MainActivity extends AppCompatActivity {
         ListViewAdapter adapter = new ListViewAdapter(MainActivity.getInstance(), list);
         listChannels.setAdapter(adapter);
 
+        downloadSelect.setEnabled(true);
+
         // update the picker values
         if (sspDevice.minPayout > 0 && sspDevice.minPayout != -1) {
             int intervalCount = sspDevice.storedPayoutValue / sspDevice.minPayout;
-            pickerValues = new String[intervalCount];
+            int ind = 0;
+            int vl[] = new int[intervalCount];
+            // build the picker interval values
             for (int i = 1; i <= intervalCount; i++) {
-                String number = Integer.toString(i * (sspDevice.minPayout / 100));
-                pickerValues[i - 1] = number;
+                // check if this payout is possible
+                if(sspDevice.IsSPPayoutPossible(sspDevice.shortDatasetVersion,i * (sspDevice.minPayout) )){
+                    vl[ind++] = i * (sspDevice.minPayout / 100);
+                }
             }
+            if(ind > 0) {
+                // all valid picker values
+                pickerValues = new String[ind];
+                for (int i = 0; i < ind; i++) {
+                    pickerValues[i] = Integer.toString(vl[i]);
+                }
+            }
+
         }
 
         if(sspDevice.storedPayoutValue > 0){
@@ -763,6 +815,10 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        downloadSelect = menu.getItem(0);
+        downloadSelect.setEnabled(false);
+
         return true;
     }
 
@@ -904,6 +960,33 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_READ_STORAGE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
+    }
+
 
 
     /**********   USB functions   ******************************************/

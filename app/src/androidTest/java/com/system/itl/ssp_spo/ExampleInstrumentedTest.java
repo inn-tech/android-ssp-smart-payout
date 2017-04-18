@@ -1,4 +1,4 @@
-package com.system.itl.ssp_bnv;
+package com.system.itl.ssp_spo;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.system.itl.ssp_bnv", appContext.getPackageName());
+        assertEquals("com.system.itl.ssp_spo", appContext.getPackageName());
     }
 }

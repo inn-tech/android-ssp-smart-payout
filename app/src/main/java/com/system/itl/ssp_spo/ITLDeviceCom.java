@@ -1,4 +1,4 @@
-package com.system.itl.ssp_bnv;
+package com.system.itl.ssp_spo;
 
 import com.ftdi.j2xx.FT_Device;
 
